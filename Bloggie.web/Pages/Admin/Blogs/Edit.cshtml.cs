@@ -18,7 +18,7 @@ namespace Bloggie.web.Pages.Admin.Blogs
         {
             BlogPost = db.BlogPosts.Find(Id);
         }
-        public IActionResult OnPost()
+        public IActionResult OnPostEdit()
         {
             var ex=db.BlogPosts.Find(BlogPost.Id);
             if (ex != null)
@@ -36,6 +36,17 @@ namespace Bloggie.web.Pages.Admin.Blogs
             db.SaveChanges();
             return RedirectToPage("/Admin/Blogs/List");
 
+        }
+        public IActionResult OnPostDelete()
+        {
+            var ex = db.BlogPosts.Find(BlogPost.Id);
+            if (ex != null)
+            {
+                db.BlogPosts.Remove(ex);
+                db.SaveChanges();
+                return RedirectToPage("/Admin/Blogs/List");
+            }
+            return Page();
         }
     }
 }
