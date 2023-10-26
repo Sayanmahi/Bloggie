@@ -14,11 +14,11 @@ namespace Bloggie.web.Pages.Admin.Blogs
         {
             db = bl;
         }
-        public void OnGet(Guid Id)
+        public async Task OnGet(Guid Id)
         {
-            BlogPost = db.BlogPosts.Find(Id);
+            BlogPost = await db.BlogPosts.FindAsync(Id);
         }
-        public IActionResult OnPostEdit()
+        public async Task<IActionResult> OnPostEdit()
         {
             var ex=db.BlogPosts.Find(BlogPost.Id);
             if (ex != null)
@@ -33,17 +33,17 @@ namespace Bloggie.web.Pages.Admin.Blogs
                 ex.Author= BlogPost.Author;
                 ex.Visible= BlogPost.Visible;
             }
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return RedirectToPage("/Admin/Blogs/List");
 
         }
-        public IActionResult OnPostDelete()
+        public async Task<IActionResult> OnPostDelete()
         {
-            var ex = db.BlogPosts.Find(BlogPost.Id);
+            var ex =await db.BlogPosts.FindAsync(BlogPost.Id);
             if (ex != null)
             {
                 db.BlogPosts.Remove(ex);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return RedirectToPage("/Admin/Blogs/List");
             }
             return Page();
