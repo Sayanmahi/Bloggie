@@ -20,7 +20,7 @@ namespace Bloggie.web.Repositories
 
         public async Task<bool> DeleteAsync(Guid Id)
         {
-            var ex = await db.BlogPosts.FindAsync(BlogPost.Id);
+            var ex = await db.BlogPosts.FindAsync(Id);
             if(ex != null)
             {
                 db.BlogPosts.Remove(ex);
