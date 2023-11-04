@@ -1,4 +1,5 @@
 using Bloggie.web.Data;
+using Bloggie.web.Repositories;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<BloggieDbContext>();
+builder.Services.AddScoped<IBlogPostRepository,BlogPostRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
