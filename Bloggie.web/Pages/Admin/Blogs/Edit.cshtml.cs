@@ -1,8 +1,10 @@
 using Bloggie.web.Data;
 using Bloggie.web.Models.Domain;
+using Bloggie.web.Models.ViewModels;
 using Bloggie.web.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace Bloggie.web.Pages.Admin.Blogs
 {
@@ -21,8 +23,24 @@ namespace Bloggie.web.Pages.Admin.Blogs
         }
         public async Task<IActionResult> OnPostEdit()
         {
-            await db.UpdateAsync(BlogPost);
-            ViewData["MessageDescription"] = "Record was successfully saved!";
+            try
+            {
+               
+                await db.UpdateAsync(BlogPost);
+                ViewData["Notification"] = new Notification
+                {
+                    Message = "Blog updated successfully!",
+                    Type = Enums.NotificationType.Success
+                };
+            }
+            catch(Exception e)
+            {
+                ViewData["Notification"] = new Notification
+                {
+                    Message = "Something went wrong!",
+                    Type = Enums.NotificationType.Error
+                };
+            }
             return Page();
 
         }
@@ -30,7 +48,15 @@ namespace Bloggie.web.Pages.Admin.Blogs
         {
             var ex=await db.DeleteAsync(BlogPost.Id);
             if (ex)
+            {
+                var notification = new Notification
+                {
+                    Type = Enums.NotificationType.Success,
+                    Message = "Blog Deleted!"
+                };
+                TempData["Notification"] = JsonSerializer.Serialize(notification);
                 return RedirectToPage("/Admin/Blogs/List");
+            }
 
             return Page();
         }
