@@ -34,6 +34,7 @@ namespace Bloggie.web.Pages.Admin.Blogs
                 PublishedDate= AddBlogPostRequest.PublishedDate
             };
             await blogPostRepository.AddAsync(blogPost);
+            TempData["MessageDescription"] = "New Blog Post Created";
             return RedirectToPage("/Admin/Blogs/List");
         }
     }

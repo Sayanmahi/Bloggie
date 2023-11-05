@@ -17,6 +17,11 @@ namespace Bloggie.web.Pages.Admin.Blogs
         }
         public async Task OnGet()
         {
+            var messageDescription=(string)TempData["MessageDescription"];
+            if(!string.IsNullOrWhiteSpace(messageDescription))
+            {
+                ViewData["MessageDescription"]=messageDescription;
+            }
            BlogPosts=(await blogPostRepository.GetAllAsync())?.ToList();
         }
     }
