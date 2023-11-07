@@ -12,6 +12,8 @@ namespace Bloggie.web.Pages.Admin.Blogs
     {
         [BindProperty]
         public AddBlogPost AddBlogPostRequest { get; set; }
+        [BindProperty]
+        public string Tags { get; set; }
         private readonly IBlogPostRepository blogPostRepository;
         public AddModel(IBlogPostRepository blogPostRepository)
         {
@@ -32,7 +34,8 @@ namespace Bloggie.web.Pages.Admin.Blogs
                 UrlHandle = AddBlogPostRequest.UrlHandle,
                 Visible = AddBlogPostRequest.Visible,
                 Author = AddBlogPostRequest.Author,
-                PublishedDate= AddBlogPostRequest.PublishedDate
+                PublishedDate = AddBlogPostRequest.PublishedDate,
+                Tags = new List<Tag>(Tags.Split(',').Select(x => new Tag() { Name = x.Trim() }))
             };
             await blogPostRepository.AddAsync(blogPost);
             var notification = new Notification
