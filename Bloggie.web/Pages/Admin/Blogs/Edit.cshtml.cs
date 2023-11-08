@@ -13,6 +13,8 @@ namespace Bloggie.web.Pages.Admin.Blogs
         private readonly IBlogPostRepository db;
         [BindProperty]
         public BlogPost BlogPost { get; set; }
+        [BindProperty]
+        public string Tags { get; set; }
         public EditModel(IBlogPostRepository bl)
         {
             db = bl;
@@ -20,12 +22,16 @@ namespace Bloggie.web.Pages.Admin.Blogs
         public async Task OnGet(Guid Id)
         {
             BlogPost = await db.GetAsync(Id);
+            if(BlogPost.Tags !=null && BlogPost !=null)
+            {
+                Tags=string.Join(",", BlogPost.Tags.Select(x => x.Name));
+            }
         }
         public async Task<IActionResult> OnPostEdit()
         {
             try
             {
-               
+                BlogPost.Tags = new List<Tag>(Tags.Split(',').Select(x => new Tag() { Name = x.Trim() }));
                 await db.UpdateAsync(BlogPost);
                 ViewData["Notification"] = new Notification
                 {

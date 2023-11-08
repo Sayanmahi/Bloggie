@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<BloggieDbContext>();
 builder.Services.AddScoped<IBlogPostRepository,BlogPostRepository>();
+builder.Services.AddScoped<ITagRepository,TagRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

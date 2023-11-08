@@ -32,25 +32,25 @@ namespace Bloggie.web.Repositories
 
         public async Task<IEnumerable<BlogPost>> GetAllAsync()
         {
-            var d=await db.BlogPosts.ToListAsync();
+            var d=await db.BlogPosts.Include(nameof(BlogPost.Tags)).ToListAsync();
             return d;
         }
 
         public async Task<BlogPost> GetAsync(Guid Id)
         {
-           var d= await db.BlogPosts.FindAsync(Id);
+           var d= await db.BlogPosts.Include(nameof(BlogPost.Tags)).FirstOrDefaultAsync(x => x.Id==Id);
             return d;
         }
 
         public async Task<BlogPost> GetAsync(string urlHandle)
         {
-            return await db.BlogPosts.FirstOrDefaultAsync(x => x.UrlHandle == urlHandle);
+            return await db.BlogPosts.Include(nameof(BlogPost.Tags)).FirstOrDefaultAsync(x => x.UrlHandle == urlHandle);
             
         }
 
         public async Task<BlogPost> UpdateAsync(BlogPost blogPost)
         {
-            var ex = db.BlogPosts.Find(blogPost.Id);
+            var ex =await db.BlogPosts.Include(nameof(BlogPost.Tags)).FirstOrDefaultAsync(x => x.Id==blogPost.Id);
             if (ex != null)
             {
                 ex.Heading = blogPost.Heading;
@@ -62,6 +62,15 @@ namespace Bloggie.web.Repositories
                 ex.PublishedDate = blogPost.PublishedDate;
                 ex.Author = blogPost.Author;
                 ex.Visible = blogPost.Visible;
+                if(blogPost.Tags != null && blogPost.Tags.Any())
+                {
+                    //Delete the existing tags
+                    db.Tag.RemoveRange(ex.Tags);
+                    //Add new Tags
+                }
+                blogPost.Tags.ToList().ForEach(x => x.BlogPostId = ex.Id);
+                await db.Tag.AddRangeAsync(blogPost.Tags);
+
             }
             await db.SaveChangesAsync();
             return ex;
