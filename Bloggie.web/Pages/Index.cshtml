@@ -27,7 +27,9 @@
                 {
                     foreach (var t in Model.Tags)
                     {
+                        <a href="/tags/@t.Name">
                         <span class="badge bg-dark">@t.Name</span>
+                        </a>
                     }
                 }
                

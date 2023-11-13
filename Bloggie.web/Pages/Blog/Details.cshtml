@@ -13,7 +13,15 @@
                     <span class="text-secondary">@Model.BlogPost.Author</span>
                     <span class="text-secondary">@Model.BlogPost.PublishedDate.ToShortDateString()</span>
                     </div>
-
+                    <div class="mb-3">
+                        @if(Model.BlogPost.Tags != null)
+                    {
+                        foreach(var t in Model.BlogPost.Tags)
+                        {
+                            <span class="badge bg-dark">@t.Name</span>
+                        }
+                    }
+                </div>
                     <img src="@Model.BlogPost.FeaturedImageUrl" class="d-block img-fluid mb-3" />
                     <div class="mb-3 blog-details">
                         @Html.Raw(Model.BlogPost.Content)

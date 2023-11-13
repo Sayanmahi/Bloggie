@@ -36,6 +36,12 @@ namespace Bloggie.web.Repositories
             return d;
         }
 
+        public async Task<IEnumerable<BlogPost>> GetAllAsync(string tagName)
+        {
+            var d = await (db.BlogPosts.Include(nameof(BlogPost.Tags)).Where(x=> x.Tags.Any(x=>x.Name== tagName))).ToListAsync();
+            return d;
+        }
+
         public async Task<BlogPost> GetAsync(Guid Id)
         {
            var d= await db.BlogPosts.Include(nameof(BlogPost.Tags)).FirstOrDefaultAsync(x => x.Id==Id);
