@@ -18,6 +18,9 @@
                     {
                         foreach(var t in Model.BlogPost.Tags)
                         {
+                            <a href="/tags/@t.Name">
+                                <span class="badge bg-dark">@t.Name</span>
+                            </a>
                             <span class="badge bg-dark">@t.Name</span>
                         }
                     }
