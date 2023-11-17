@@ -13,6 +13,16 @@ builder.Services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(bui
 builder.Services.AddDbContext<BloggieDbContext>();
 builder.Services.AddDbContext<AuthDbContext>();
 builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<AuthDbContext>();
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    //password settings are
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+});
 builder.Services.AddScoped<IBlogPostRepository,BlogPostRepository>();
 builder.Services.AddScoped<ITagRepository,TagRepository>();
 
