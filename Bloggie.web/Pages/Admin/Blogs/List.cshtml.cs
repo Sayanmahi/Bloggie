@@ -2,6 +2,7 @@ using Bloggie.web.Data;
 using Bloggie.web.Models.Domain;
 using Bloggie.web.Models.ViewModels;
 using Bloggie.web.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using System.Text.Json;
 
 namespace Bloggie.web.Pages.Admin.Blogs
 {
+    [Authorize(Roles = "Admin")]
     public class ListModel : PageModel
     {
         private readonly IBlogPostRepository blogPostRepository;
