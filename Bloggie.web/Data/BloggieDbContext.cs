@@ -11,6 +11,7 @@ namespace Bloggie.web.Data
         }
         public DbSet<BlogPost> BlogPosts { get; set; }
         public DbSet<Tag> Tag { get; set; }
+        public DbSet<BlogPostLike> BlogPostLike { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

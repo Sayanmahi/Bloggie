@@ -14,6 +14,9 @@
                     <span class="text-secondary">@Model.BlogPost.PublishedDate.ToShortDateString()</span>
                     </div>
                     <div class="mb-3">
+                        <span><i class="bi bi-hand-thumbs-up"></i> @Model.TotalLikes Likes</span>
+                    </div>
+                    <div class="mb-3">
                         @if(Model.BlogPost.Tags != null)
                     {
                         foreach(var t in Model.BlogPost.Tags)
