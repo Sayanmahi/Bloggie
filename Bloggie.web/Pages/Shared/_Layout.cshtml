@@ -23,10 +23,10 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
                         @if(signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
                                 <a class="nav-link" asp-area="" asp-page="/admin/blogs/add">Add Blog Post</a>
                                 <a class="nav-link" asp-area="" asp-page="/admin/blogs/list">Blog Posts</a>
 
