@@ -1,25 +1,49 @@
 ﻿@page "/blog/{urlHandle}"
 @model Bloggie.web.Pages.Blog.DetailsModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> userManager
+@inject SignInManager<IdentityUser> signInManager
 @{
     ViewData["Title"] = Model.BlogPost.PageTitle;
 }
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-6">
-            @if(Model.BlogPost !=null)
+            @if (Model.BlogPost != null)
             {
                 <h1 class="mb-3">@Model.BlogPost.Heading</h1>
                 <div class="d-flex justify-content-between mb-3">
                     <span class="text-secondary">@Model.BlogPost.Author</span>
                     <span class="text-secondary">@Model.BlogPost.PublishedDate.ToShortDateString()</span>
-                    </div>
-                    <div class="mb-3">
-                        <span><i class="bi bi-hand-thumbs-up"></i> @Model.TotalLikes Likes</span>
-                    </div>
-                    <div class="mb-3">
-                        @if(Model.BlogPost.Tags != null)
+                </div>
+                <div class="mb-3">
+                    <span>
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            @if (Model.Liked)
+                            {
+                                <a style="cursor: pointer">
+                                    <i class="bi bi-thumbs-up-fill"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <a id="btnLike" style="cursor: pointer">
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                </a>
+                            }
+                        }
+
+
+                        <span id="totalLikes">
+                            @Model.TotalLikes Likes
+                        </span>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    @if (Model.BlogPost.Tags != null)
                     {
-                        foreach(var t in Model.BlogPost.Tags)
+                        foreach (var t in Model.BlogPost.Tags)
                         {
                             <a href="/tags/@t.Name">
                                 <span class="badge bg-dark">@t.Name</span>
@@ -28,16 +52,50 @@
                         }
                     }
                 </div>
-                    <img src="@Model.BlogPost.FeaturedImageUrl" class="d-block img-fluid mb-3" />
-                    <div class="mb-3 blog-details">
-                        @Html.Raw(Model.BlogPost.Content)
-                    </div>
+                <img src="@Model.BlogPost.FeaturedImageUrl" class="d-block img-fluid mb-3" />
+                <div class="mb-3 blog-details">
+                    @Html.Raw(Model.BlogPost.Content)
+                </div>
 
             }
             else
             {
-               <h1>Blog Post Not Found!</h1> 
+                <h1>Blog Post Not Found!</h1>
             }
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        const btnLike = document.getElementById('btnLike');
+        const totalLikes = document.getElementById('totalLikes');
+        async function getTotalLikes() {
+            fetch('/api/blogpostlike/@Model.BlogPost.Id/totallikes', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*'
+                },
+            })
+                .then(data => data.json())
+                .then(result => totalLikes.innerHTML = result);
+        }
+        async function addLikeForBlog() {
+            fetch('/api/blogpostlike/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*'
+                },
+                body: JSON.stringify({ BlogPostId: '@Model.BlogPost.Id', UserId: '@userManager.GetUserId(User)' })
+            })
+                .then(() => {
+                    btnLike.innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i>';
+                    btnLike.removeEventListener('click', addLikeForBlog);
+                    getTotalLikes();
+
+                });
+        }
+        btnLike.addEventListener('click', addLikeForBlog);
+    </script>
+}
