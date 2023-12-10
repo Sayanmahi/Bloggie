@@ -1,4 +1,5 @@
 ﻿using Bloggie.web.Models.Domain;
+using Bloggie.Web.Models.Domain;
 
 namespace Bloggie.web.Repositories
 {

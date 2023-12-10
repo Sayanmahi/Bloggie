@@ -1,21 +1,28 @@
 ﻿@page "/blog/{urlHandle}"
 @model Bloggie.web.Pages.Blog.DetailsModel
+
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> userManager
 @inject SignInManager<IdentityUser> signInManager
-@{
-    ViewData["Title"] = Model.BlogPost.PageTitle;
-}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-6">
-            @if (Model.BlogPost != null)
-            {
+
+
+@if (Model.BlogPost != null)
+{
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-6">
+
+                @{
+                    ViewData["Title"] = Model.BlogPost.PageTitle;
+                }
+
                 <h1 class="mb-3">@Model.BlogPost.Heading</h1>
+
                 <div class="d-flex justify-content-between mb-3">
                     <span class="text-secondary">@Model.BlogPost.Author</span>
                     <span class="text-secondary">@Model.BlogPost.PublishedDate.ToShortDateString()</span>
                 </div>
+
                 <div class="mb-3">
                     <span>
                         @if (signInManager.IsSignedIn(User))
@@ -23,7 +30,7 @@
                             @if (Model.Liked)
                             {
                                 <a style="cursor: pointer">
-                                    <i class="bi bi-thumbs-up-fill"></i>
+                                    <i class="bi bi-hand-thumbs-up-fill"></i>
                                 </a>
                             }
                             else
@@ -34,68 +41,122 @@
                             }
                         }
 
-
-                        <span id="totalLikes">
-                            @Model.TotalLikes Likes
-                        </span>
+                        <span id="totalLikes">@Model.TotalLikes</span> likes
                     </span>
                 </div>
+
                 <div class="mb-3">
                     @if (Model.BlogPost.Tags != null)
                     {
-                        foreach (var t in Model.BlogPost.Tags)
+                        foreach (var tag in Model.BlogPost.Tags)
                         {
-                            <a href="/tags/@t.Name">
-                                <span class="badge bg-dark">@t.Name</span>
+                            <a href="/tags/@tag.Name">
+                                <span class="badge bg-dark">@tag.Name</span>
                             </a>
-                            <span class="badge bg-dark">@t.Name</span>
+
                         }
                     }
                 </div>
+
                 <img src="@Model.BlogPost.FeaturedImageUrl" class="d-block img-fluid mb-3" />
+
                 <div class="mb-3 blog-details">
                     @Html.Raw(Model.BlogPost.Content)
                 </div>
 
-            }
-            else
-            {
-                <h1>Blog Post Not Found!</h1>
-            }
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Comments</h5>
+
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            <form method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Comment Description</label>
+                                    <input type="text" class="form-control" asp-for="CommentDescription" />
+                                    <span class="text-danger" asp-validation-for="CommentDescription"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-dark">Add Comment</button>
+                                    <input type="hidden" asp-for="BlogPostId" />
+                                </div>
+                            </form>
+                        }
+
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Comments != null && Model.Comments.Any())
+                        {
+                            @foreach (var comment in Model.Comments)
+                            {
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div>
+                                            @comment.Description
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">@comment.UserName</span>
+                                            <span class="text-secondary">@comment.DateAdded.ToShortDateString()</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>No comments.</p>
+                        }
+
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-@section Scripts {
+
+    @section Scripts {
     <script>
         const btnLike = document.getElementById('btnLike');
-        const totalLikes = document.getElementById('totalLikes');
+        const totalLikesElement = document.getElementById('totalLikes');
+
         async function getTotalLikes() {
             fetch('/api/blogpostlike/@Model.BlogPost.Id/totallikes', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': '*/*'
-                },
-            })
-                .then(data => data.json())
-                .then(result => totalLikes.innerHTML = result);
-        }
-        async function addLikeForBlog() {
-            fetch('/api/blogpostlike/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': '*/*'
-                },
-                body: JSON.stringify({ BlogPostId: '@Model.BlogPost.Id', UserId: '@userManager.GetUserId(User)' })
-            })
-                .then(() => {
-                    btnLike.innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i>';
-                    btnLike.removeEventListener('click', addLikeForBlog);
-                    getTotalLikes();
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': '*/*'
+                    }
+                })
+                    .then(data => data.json())
+                    .then(result => totalLikesElement.innerHTML = result);
+            }
 
-                });
-        }
-        btnLike.addEventListener('click', addLikeForBlog);
-    </script>
+            async function addLikeForBlog() {
+
+                fetch('/api/blogpostlike/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': '*/*'
+                    },
+                    body: JSON.stringify({ blogPostId: '@Model.BlogPost.Id', userId: '@userManager.GetUserId(User)' })
+                })
+                    .then(() => {
+                        btnLike.innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i>';
+                        btnLike.removeEventListener('click', addLikeForBlog);
+                        getTotalLikes();
+                    });
+            }
+
+            btnLike.addEventListener('click', addLikeForBlog);
+
+        </script>
+    }
 }
+else
+{
+    <div class="container mt-3">
+        <h2>Blog post not found!</h2>
+    </div>
+}
+

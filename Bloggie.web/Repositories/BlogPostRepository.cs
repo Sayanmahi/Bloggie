@@ -1,5 +1,6 @@
 ﻿using Bloggie.web.Data;
 using Bloggie.web.Models.Domain;
+using Bloggie.Web.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bloggie.web.Repositories

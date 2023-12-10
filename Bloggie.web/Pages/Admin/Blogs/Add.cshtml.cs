@@ -2,6 +2,7 @@ using Bloggie.web.Data;
 using Bloggie.web.Models.Domain;
 using Bloggie.web.Models.ViewModels;
 using Bloggie.web.Repositories;
+using Bloggie.Web.Models.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

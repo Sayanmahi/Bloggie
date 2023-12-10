@@ -22,7 +22,7 @@ namespace Bloggie.web.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Bloggie.web.Models.Domain.BlogPost", b =>
+            modelBuilder.Entity("Bloggie.Web.Models.Domain.BlogPost", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -67,7 +67,33 @@ namespace Bloggie.web.Migrations
                     b.ToTable("BlogPosts");
                 });
 
-            modelBuilder.Entity("Bloggie.web.Models.Domain.BlogPostLike", b =>
+            modelBuilder.Entity("Bloggie.Web.Models.Domain.BlogPostComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlogPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogPostId");
+
+                    b.ToTable("BlogPostComment");
+                });
+
+            modelBuilder.Entity("Bloggie.Web.Models.Domain.BlogPostLike", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -106,9 +132,18 @@ namespace Bloggie.web.Migrations
                     b.ToTable("Tag");
                 });
 
-            modelBuilder.Entity("Bloggie.web.Models.Domain.BlogPostLike", b =>
+            modelBuilder.Entity("Bloggie.Web.Models.Domain.BlogPostComment", b =>
                 {
-                    b.HasOne("Bloggie.web.Models.Domain.BlogPost", null)
+                    b.HasOne("Bloggie.Web.Models.Domain.BlogPost", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("BlogPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bloggie.Web.Models.Domain.BlogPostLike", b =>
+                {
+                    b.HasOne("Bloggie.Web.Models.Domain.BlogPost", null)
                         .WithMany("Likes")
                         .HasForeignKey("BlogPostId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -117,15 +152,17 @@ namespace Bloggie.web.Migrations
 
             modelBuilder.Entity("Bloggie.web.Models.Domain.Tag", b =>
                 {
-                    b.HasOne("Bloggie.web.Models.Domain.BlogPost", null)
+                    b.HasOne("Bloggie.Web.Models.Domain.BlogPost", null)
                         .WithMany("Tags")
                         .HasForeignKey("BlogPostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Bloggie.web.Models.Domain.BlogPost", b =>
+            modelBuilder.Entity("Bloggie.Web.Models.Domain.BlogPost", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("Likes");
 
                     b.Navigation("Tags");
