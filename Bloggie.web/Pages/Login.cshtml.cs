@@ -18,26 +18,34 @@ namespace Bloggie.web.Pages
         public void OnGet()
         {
         }
-        public async Task<IActionResult> OnPost(string ReturnUrl)
+        public async Task<IActionResult> OnPost(string? ReturnUrl)
         {
-            var signInResult=await signInManager.PasswordSignInAsync(LoginViewModel.UserName,LoginViewModel.Password,false,false);
-            if(signInResult.Succeeded) 
+            if(ModelState.IsValid)
             {
-                if (!string.IsNullOrWhiteSpace(ReturnUrl))
+                var signInResult = await signInManager.PasswordSignInAsync(LoginViewModel.UserName, LoginViewModel.Password, false, false);
+                if (signInResult.Succeeded)
                 {
-                    return RedirectToPage(ReturnUrl);
+                    if (!string.IsNullOrWhiteSpace(ReturnUrl))
+                    {
+                        return RedirectToPage(ReturnUrl);
+                    }
+                    return RedirectToPage("Index");
                 }
-                return RedirectToPage("Index");
+                else
+                {
+                    ViewData["Notification"] = new Notification
+                    {
+                        Type = Enums.NotificationType.Error,
+                        Message = "Wrong Credentials!"
+                    };
+                    return Page();
+                }
             }
             else
             {
-                ViewData["Notification"] = new Notification
-                {
-                    Type = Enums.NotificationType.Error,
-                    Message = "Wrong Credentials!"
-                };
                 return Page();
             }
+           
         }
     }
 }
