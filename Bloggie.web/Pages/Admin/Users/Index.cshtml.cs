@@ -22,9 +22,43 @@ namespace Bloggie.web.Pages.Admin.Users
         }
         public async Task<IActionResult> OnGet()
         {
-            var users=await rep.GetAll();
+            await GetUsers();
+            return Page();
+        }
+        public async Task<IActionResult> OnPost()
+        {
+            if(ModelState.IsValid)
+            {
+                var identityUser = new IdentityUser
+                {
+                    UserName = AddUserRequest.UserName,
+                    Email = AddUserRequest.Email
+                };
+                var roles = new List<string> { "User" };
+                if (AddUserRequest.AdminCheckbox == true)
+                {
+                    roles.Add("Admin");
+                }
+                var u = await rep.Add(identityUser, AddUserRequest.Password, roles);
+                if (u)
+                {
+                    return RedirectToPage("/Admin/Users/Index");
+                }
+                return Page();
+            }
+            await GetUsers();
+            return Page();
+        }
+        public async Task<IActionResult> OnPostDelete()
+        {
+            await rep.Delete(SelectedUserId);
+            return RedirectToPage("/Admin/Users/Index");
+        }
+        private async Task GetUsers()
+        {
+            var users = await rep.GetAll();
             Users = new List<User>();
-            foreach(var i in users)
+            foreach (var i in users)
             {
                 Users.Add(new Models.ViewModels.User()
                 {
@@ -33,31 +67,6 @@ namespace Bloggie.web.Pages.Admin.Users
                     Email = i.Email
                 });
             }
-            return Page();
-        }
-        public async Task<IActionResult> OnPost()
-        {
-            var identityUser = new IdentityUser
-            {
-                UserName = AddUserRequest.UserName,
-                Email = AddUserRequest.Email
-            };
-            var roles =new List<string>{ "User"};
-            if(AddUserRequest.AdminCheckbox==true)
-            {
-                roles.Add("Admin");
-            }
-            var u = await rep.Add(identityUser, AddUserRequest.Password, roles);
-            if(u)
-            {
-                return RedirectToPage("/Admin/Users/Index");
-            }
-            return Page();
-        }
-        public async Task<IActionResult> OnPostDelete()
-        {
-            await rep.Delete(SelectedUserId);
-            return RedirectToPage("/Admin/Users/Index");
         }
     }
 }
