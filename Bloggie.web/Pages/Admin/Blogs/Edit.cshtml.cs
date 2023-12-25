@@ -6,6 +6,7 @@ using Bloggie.Web.Models.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace Bloggie.web.Pages.Admin.Blogs
@@ -15,8 +16,9 @@ namespace Bloggie.web.Pages.Admin.Blogs
     {
         private readonly IBlogPostRepository db;
         [BindProperty]
-        public BlogPost BlogPost { get; set; }
+        public EditBlogPostRequest BlogPost { get; set; }
         [BindProperty]
+        [Required]
         public string Tags { get; set; }
         public EditModel(IBlogPostRepository bl)
         {
@@ -24,31 +26,64 @@ namespace Bloggie.web.Pages.Admin.Blogs
         }
         public async Task OnGet(Guid Id)
         {
-            BlogPost = await db.GetAsync(Id);
-            if(BlogPost.Tags !=null && BlogPost !=null)
+            var blogpostdomainmodel = await db.GetAsync(Id);
+            if(blogpostdomainmodel.Tags != null && blogpostdomainmodel != null)
             {
-                Tags=string.Join(",", BlogPost.Tags.Select(x => x.Name));
+                BlogPost = new EditBlogPostRequest()
+                {
+                   Id=blogpostdomainmodel.Id,
+                   Heading=blogpostdomainmodel.Heading,
+                   PageTitle=blogpostdomainmodel.PageTitle,
+                   Content=blogpostdomainmodel.Content,
+                   ShortDescription=blogpostdomainmodel.ShortDescription,
+                   FeaturedImageUrl=blogpostdomainmodel.FeaturedImageUrl,
+                   UrlHandle=blogpostdomainmodel.UrlHandle,
+                   PublishedDate=blogpostdomainmodel.PublishedDate,
+                   Author=blogpostdomainmodel.Author,
+                   Visible=blogpostdomainmodel.Visible
+                };
+                Tags = string.Join(",", blogpostdomainmodel.Tags.Select(x => x.Name));
             }
         }
         public async Task<IActionResult> OnPostEdit()
         {
-            try
+            Validateheading();
+            if (ModelState.IsValid)
             {
-                BlogPost.Tags = new List<Tag>(Tags.Split(',').Select(x => new Tag() { Name = x.Trim() }));
-                await db.UpdateAsync(BlogPost);
-                ViewData["Notification"] = new Notification
+                try
                 {
-                    Message = "Blog updated successfully!",
-                    Type = Enums.NotificationType.Success
-                };
-            }
-            catch(Exception e)
-            {
-                ViewData["Notification"] = new Notification
+                    var blogostdomainmodel = new BlogPost()
+                    {
+                        Id = BlogPost.Id,
+                        Heading = BlogPost.Heading,
+                        PageTitle = BlogPost.PageTitle,
+                        Content = BlogPost.Content,
+                        ShortDescription = BlogPost.ShortDescription,
+                        FeaturedImageUrl = BlogPost.FeaturedImageUrl,
+                        UrlHandle = BlogPost.UrlHandle,
+                        PublishedDate = BlogPost.PublishedDate,
+                        Author = BlogPost.Author,
+                        Visible = BlogPost.Visible,
+                        Tags = new List<Tag>(Tags.Split(',').Select(x => new Tag() { Name = x.Trim() }))
+
+                    };
+
+                    await db.UpdateAsync(blogostdomainmodel);
+                    ViewData["Notification"] = new Notification
+                    {
+                        Message = "Blog updated successfully!",
+                        Type = Enums.NotificationType.Success
+                    };
+                }
+                catch (Exception e)
                 {
-                    Message = "Something went wrong!",
-                    Type = Enums.NotificationType.Error
-                };
+                    ViewData["Notification"] = new Notification
+                    {
+                        Message = "Something went wrong!",
+                        Type = Enums.NotificationType.Error
+                    };
+                }
+                return Page();
             }
             return Page();
 
@@ -68,6 +103,18 @@ namespace Bloggie.web.Pages.Admin.Blogs
             }
 
             return Page();
+        }
+        private void Validateheading()
+        {
+            if(BlogPost.Heading != null)
+            {
+                //check for minimum length
+                if(BlogPost.Heading.Length <10 || BlogPost.Heading.Length >72)
+                {
+                    ModelState.AddModelError("BlogPost.Heading", "Heading can only be between 10 and 72 characters");
+                }
+                //check for maximum length
+            }
         }
     }
 }
